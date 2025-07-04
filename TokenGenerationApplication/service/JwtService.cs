@@ -2,33 +2,40 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TokenGenerationApplication.DTOs;
 using TokenGenerationApplication.Models;
 
 namespace TokenGenerationApplication.service
-{  
+{
     public class JwtService
     {
         private readonly IConfiguration _configuration;
 
         public JwtService(IConfiguration configuration)
         {
-                _configuration = configuration;
+            _configuration = configuration;
         }
 
-       public async Task<LoginResponse?> Authenticate(LoginRequest request)
+        public async Task<LoginResponseDTO?> Authenticate(LoginRequestDTO request)
         {
-            var issuer = _configuration["JwtConfig:Issure"];
+            var issuer = _configuration["JwtConfig:Issuer"];
             var audience = _configuration["JwtConfig:Audience"];
             var key = _configuration["JwtConfig:Key"];
             var tokenvalidityMins = _configuration.GetValue<int>("JwtConfig:TokenValidityMins");
             var tokenExpiryTimeStamp = DateTime.UtcNow.AddMinutes(tokenvalidityMins);
 
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, request.Username),  // ✅ Identity.Name
+                new Claim("sub", "pavan_claim") ,               // ✅ Used in your policy
+                // Optional:
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Name,request.Username)
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = tokenExpiryTimeStamp,
                 Issuer = issuer,
                 Audience = audience,
@@ -40,7 +47,7 @@ namespace TokenGenerationApplication.service
             var securityToken = tokenHandler.CreateToken(tokenDescriptor);
             var accessToken = tokenHandler.WriteToken(securityToken);
 
-            return new LoginResponse
+            return new LoginResponseDTO
             {
                 Accesstoken = accessToken,
                 Username = request.Username,
