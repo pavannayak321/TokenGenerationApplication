@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -10,13 +11,15 @@ namespace TokenGenerationApplication.service
     public class JwtService
     {
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public JwtService(IConfiguration configuration)
+        public JwtService(IConfiguration configuration,IMapper mapper)
         {
             _configuration = configuration;
+            _mapper = mapper;
         }
 
-        public async Task<LoginResponseDTO?> Authenticate(LoginRequestDTO request)
+        public async Task<LoginResponseDTO?> Authenticate(LoginRequest request)
         {
             var issuer = _configuration["JwtConfig:Issuer"];
             var audience = _configuration["JwtConfig:Audience"];
@@ -27,8 +30,7 @@ namespace TokenGenerationApplication.service
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, request.Username),  // ✅ Identity.Name
-                new Claim("sub", "pavan_claim") ,               // ✅ Used in your policy
-                // Optional:
+                new Claim("sub", "pavan_claim"),               // ✅ Used in your policy
                 new Claim(ClaimTypes.Role, "Admin")
             };
 
