@@ -4,9 +4,9 @@ name: Build .NET Application
 
 on:
   push:
-    branches: [ "main" ]  # or "master" or your current branch
+    branches: [ "master" ]  # or "master" or your current branch
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
