@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TokenGenerationApplication.DTOs;
+using TokenGenerationApplication.Models;
 using TokenGenerationApplication.service;
 
 namespace TokenGenerationApplication.Controllers
@@ -19,7 +20,7 @@ namespace TokenGenerationApplication.Controllers
         [HttpGet]
         public Task<LoginResponseDTO> Get()
         {
-            var token = _jwtService.Authenticate(new LoginRequestDTO
+            var token = _jwtService.Authenticate(new LoginRequest
             {
                 Username = "pavankumar",
                 Password = "pavan123"
