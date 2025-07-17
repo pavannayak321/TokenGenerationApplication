@@ -39,10 +39,10 @@ namespace LabourIdentity.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequestDTO loginRequestDTO)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
             var result =await  _authService.Login(loginRequestDTO);
-            if (result.User == null)
+            if (result.User == null|| result.Token.Length<=0)
             {
                 _responseDTO.IsSuccess = false;
                 _responseDTO.Message = "Invalid username or password.";
@@ -52,6 +52,26 @@ namespace LabourIdentity.Controllers
             {
                 _responseDTO.IsSuccess = true;
                 _responseDTO.Message = "Login successful.";
+                _responseDTO.Result = result;
+                return Ok(_responseDTO);
+            }
+        }
+
+        //
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> CreateRoleAsync([FromBody] RegistrationRequestDTO registerRequestDTO)
+        {
+            var result = await _authService.AssignRole(registerRequestDTO.Email, registerRequestDTO.Role.ToUpper());
+            if (!result)
+            {
+                _responseDTO.IsSuccess = false;
+                _responseDTO.Message = "Error Occured";
+                return BadRequest(_responseDTO);
+            }
+            else
+            {
+                _responseDTO.IsSuccess = true;
+                _responseDTO.Message = "Role created Successfully.";
                 _responseDTO.Result = result;
                 return Ok(_responseDTO);
             }

@@ -21,6 +21,23 @@ namespace LabourIdentity.Services
             _roleManager = roleManager;
             _jwtTokenGenerator = jwtTokenGenerator;
         }
+
+        public async  Task<bool> AssignRole(string email, string roleName)
+        {
+            var result = _db.ApplicationUsers.FirstOrDefault(u => u.Email == email);
+            if (result != null)
+            {
+                if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+                {
+                    //create rle if does not exist
+                    _roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult();
+                }
+                _userManager.AddToRoleAsync(result, roleName).GetAwaiter().GetResult();
+                return true;
+            }
+            return false;
+        }
+
         public async  Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
             var user = _db.ApplicationUsers.FirstOrDefault(u=>u.UserName== loginRequestDTO.UserName);
