@@ -1,4 +1,5 @@
 ﻿using LabourIdentity.DTOs;
+using LabourIdentity.Models;
 
 namespace LabourIdentity.Services.IService
 {
@@ -6,5 +7,6 @@ namespace LabourIdentity.Services.IService
     {
         public  Task<string> RegisterAsync(RegistrationRequestDTO registrationRequestDTO);
         public Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
+        public Task<bool> AssignRole(string email, string roleName);
     }
 }
