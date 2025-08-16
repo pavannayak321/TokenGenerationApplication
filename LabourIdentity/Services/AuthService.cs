@@ -3,6 +3,7 @@ using LabourIdentity.DTOs;
 using LabourIdentity.Models;
 using LabourIdentity.Services.IService;
 using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace LabourIdentity.Services
 {
@@ -99,6 +100,33 @@ namespace LabourIdentity.Services
                 throw new Exception(ex.ToString());
             }
             return "Error Encountered";
+        }
+        public async Task<ApplicationUser> CreateOrGetUserFromTokenAsync(string acessToken)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(acessToken);
+
+            var email = jwt.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value ?? jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            var givenName = jwt.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value;
+            var familyName = jwt.Claims.FirstOrDefault(c => c.Type == "family_name")?.Value;
+
+            if (string.IsNullOrEmpty(email))
+                throw new Exception("Email claim not found in token");
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+                return existingUser;
+            var newUser = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                Name = givenName ?? "",
+                LastName = familyName ?? ""
+            };
+            var result = await _userManager.CreateAsync(newUser);
+            if (!result.Succeeded)
+                throw new Exception("User creation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            return newUser;
         }
     }
 }
