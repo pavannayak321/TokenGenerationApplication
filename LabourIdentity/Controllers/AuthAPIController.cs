@@ -78,7 +78,7 @@ namespace LabourIdentity.Controllers
         }
         [HttpPost("external-login")]
         public async Task<IActionResult> ExternalLogin([FromQuery] string accessToken)
-        {
+            {
             var user = await _authService.CreateOrGetUserFromTokenAsync(accessToken);
             if (user == null)
             {
